@@ -52,6 +52,7 @@
 
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 import java.util.*;
 import java.util.Random;
 public class ATM {
@@ -60,21 +61,25 @@ public class ATM {
     static List<HashMap<String,Object>> accounts = new ArrayList<>();
     static boolean isLoggedIn = false;
     
+    static Pattern pattern = Pattern.compile("^[\\w!#$%&amp;'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&amp;'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$");
+    static Pattern p = Pattern.compile("^0[689]{1}[0-9]{1}[0-9]{3}[0-9]{4}$");
+    
     
     public static void main(String[] args) throws InterruptedException {
         Scanner scanner = new Scanner(System.in);
         
-        HashMap<String, Object> newUser = new HashMap<>();
-        newUser.put("username", "sevasit");
-        newUser.put("password", "12345");
-        newUser.put("name", "sevasit");
-        newUser.put("lastname", "senpradit");
-        newUser.put("phone", "09999999");
-        newUser.put("email", "new@gmail.com");
-        newUser.put("idAtm", "AB-55555");
-        newUser.put("money", Float.parseFloat("100000.00"));
+        // HashMap<String, Object> newUser = new HashMap<>();
+        // newUser.put("username", "sevasit");
+        // newUser.put("password", "12345");
+        // newUser.put("name", "sevasit");
+        // newUser.put("lastname", "senpradit");
+        // newUser.put("phone", "09999999");
+        // newUser.put("email", "new@gmail.com");
+        // newUser.put("idAtm", "AB-55555");
+        // newUser.put("money", Float.parseFloat("100000.00"));
 
-        accounts.add(newUser);
+        // accounts.add(newUser);
+        //AB-26965
 
         System.out.print("\033[H\033[2J");
         try{
@@ -84,19 +89,23 @@ public class ATM {
                 System.out.println("2. Register");
                 System.out.println("3. Exit");
                 System.out.print("Enter your choice: ");
-                int choice = scanner.nextInt();
+                String choice = scanner.nextLine();
+                if(choice.isBlank() || choice.isEmpty()){
+                    System.out.print("\033[H\033[2J");
+                    runAfterLogout();
+                }
                 
                 
                 switch (choice) {
-                    case 1:
+                    case "1":
                     System.out.print("\033[H\033[2J");
                         isLoggedIn = login(scanner,accounts);
                         break;
-                    case 2:
+                    case "2":
                     System.out.print("\033[H\033[2J");
                         register(scanner,accounts);
                         break;
-                    case 3:
+                    case "3":
                     System.out.print("\033[H\033[2J");
                         System.out.println("Thank you for using the application. Goodbye!");
                         TimeUnit.SECONDS.sleep(2);
@@ -130,32 +139,36 @@ public class ATM {
             System.out.println("5. Deactivate");
             System.out.println("6. Logout");
             System.out.print("Enter your choice: ");
-            int choice = scanner.nextInt();
+            String choice = scanner.nextLine();
+                if(choice.isBlank() || choice.isEmpty()){
+                    System.out.print("\033[H\033[2J");
+                    logged();
+                }
             
             switch (choice) {
-                case 1:
+                case "1":
                 System.out.print("\033[H\033[2J");
                     showAccount(accounts,currentUser);
                     break;
-                case 2:
+                case "2":
                 System.out.print("\033[H\033[2J");
                     deposit(accounts,currentUser,scanner); //Deposit // ฝากเงิน
                     break;
-                case 3:
+                case "3":
                 System.out.print("\033[H\033[2J");
                     withdraw(accounts, currentUser, scanner); //Withdraw // ถอนเงิน
                     break;
-                case 4:
+                case "4":
                 System.out.print("\033[H\033[2J");
                     transfer(accounts, currentUser, scanner); //Transfer // โอนเงิน
                     break;
-                case 5:
+                case "5":
                 System.out.print("\033[H\033[2J");
                     deleteAcc(accounts,currentUser);
                     isLoggedIn = false;
                     runAfterLogout();
                     break;
-                case 6:
+                case "6":
                 System.out.print("\033[H\033[2J");
                     isLoggedIn = false;
                     runAfterLogout();
@@ -189,7 +202,23 @@ public class ATM {
         public static void transfer(List<HashMap<String, Object>> accounts,String currentUser, Scanner scanner) throws InterruptedException {
             try{
             System.out.print("Enter your transfer: ");
-            Float transfer = Float.parseFloat(scanner.next());
+            String choice = scanner.nextLine();
+            Float transfer = Float.parseFloat(choice);
+
+            if(transfer.toString().isEmpty() || transfer.toString().isBlank()){
+                System.out.println("Your deposit is invalid.");
+                TimeUnit.SECONDS.sleep(2);
+                System.out.print("\033[H\033[2J");
+                return;
+            }
+
+            if(transfer.toString().isEmpty() || transfer.toString().isBlank()){
+                System.out.println("Your deposit is invalid.");
+                TimeUnit.SECONDS.sleep(2);
+                System.out.print("\033[H\033[2J");
+                return;
+            }
+
             if(transfer <= 0){
                 System.out.println("Your transfer is invalid.");
                 TimeUnit.SECONDS.sleep(2);
@@ -197,7 +226,13 @@ public class ATM {
                 return;
             }
             System.out.print("Enter ATMID: ");
-            String atmId = scanner.next();
+            String atmId = scanner.nextLine();
+            if(atmId.isBlank() || atmId.isEmpty()){
+                System.out.println("ATMID is invalid.");
+                TimeUnit.SECONDS.sleep(2);
+                System.out.print("\033[H\033[2J");
+                return;
+            }
 
             if(atmId.equals(atmCurrentId)){
                 System.out.println("ATMID is invalid.");
@@ -207,16 +242,20 @@ public class ATM {
             }
 
            //เช็คATMID
-            for (HashMap<String, Object> userAcc : accounts) {
-                if (userAcc.get("idAtm").equals(atmId)) {
-                    break;
-                }else{
-                    System.out.println("ATMID is invalid.");
-                    TimeUnit.SECONDS.sleep(2);
-                    System.out.print("\033[H\033[2J");
-                    return;
-                }
-            }
+           boolean foundAccount = false;
+           for (HashMap<String, Object> userAcc : accounts) {
+               if (userAcc.get("idAtm").equals(atmId)) {
+                   foundAccount = true;
+                   break;
+               }
+           }
+           
+           if (!foundAccount) {
+               System.out.println("ATMID is invalid.");
+               TimeUnit.SECONDS.sleep(2);
+               System.out.print("\033[H\033[2J");
+               return;
+           }
 
             //ลบตัง
             HashMap<String, Object> user = null;
@@ -234,7 +273,7 @@ public class ATM {
                         System.out.println("Sorry can't transfer.");
                         TimeUnit.SECONDS.sleep(2);
                         System.out.print("\033[H\033[2J");
-                        break;
+                        return;
                     }else{
                         float newMoney = currentMoney - transfer;
                         user.put("money", newMoney);
@@ -273,7 +312,15 @@ public class ATM {
     public static void deposit(List<HashMap<String, Object>> accounts,String currentUser, Scanner scanner) throws InterruptedException {
         try{
         System.out.print("Enter your Deposit: ");
-        Float deposit = Float.parseFloat(scanner.next());
+        String choice = scanner.nextLine();
+        Float deposit = Float.parseFloat(choice);
+
+        if(deposit.toString().isEmpty() || deposit.toString().isBlank()){
+            System.out.println("Your deposit is invalid.");
+            TimeUnit.SECONDS.sleep(2);
+            System.out.print("\033[H\033[2J");
+            return;
+        }
 
         if(deposit <= 0){
             System.out.println("Your deposit is invalid.");
@@ -307,7 +354,15 @@ public class ATM {
     public static void withdraw(List<HashMap<String, Object>> accounts,String currentUser, Scanner scanner) throws InterruptedException {
         try{
         System.out.print("Enter your withdraw: ");
-        Float withdraw = Float.parseFloat(scanner.next());
+        String choice = scanner.nextLine();
+        Float withdraw = Float.parseFloat(choice);
+
+        if(withdraw.toString().isEmpty() || withdraw.toString().isBlank()){
+            System.out.println("Your deposit is invalid.");
+            TimeUnit.SECONDS.sleep(2);
+            System.out.print("\033[H\033[2J");
+            return;
+        }
 
         if(withdraw <= 0){
             System.out.println("Your withdraw is invalid.");
@@ -323,11 +378,15 @@ public class ATM {
                 float currentMoney = (float) user.get("money");
                 if(currentMoney < withdraw){
                     System.out.println("You got no money enough to withdraw.");
+                    TimeUnit.SECONDS.sleep(2);
+                    System.out.print("\033[H\033[2J");
                     return;
                 }
                 if(currentMoney <= 0){
                     System.out.println("Sorry can't withdraw.");
-                    break;
+                    TimeUnit.SECONDS.sleep(2);
+                    System.out.print("\033[H\033[2J");
+                    return;
                 }else{
                     float newMoney = currentMoney - withdraw;
                     user.put("money", newMoney);
@@ -360,38 +419,44 @@ public class ATM {
             System.out.println("5. Deactivate");
             System.out.println("6. Logout");
             System.out.print("Enter your choice: ");
-            int choice = scanner.nextInt();
+            String choice = scanner.nextLine();
+                if(choice.isBlank() || choice.isEmpty()){
+                    System.out.print("\033[H\033[2J");
+                    logged();
+                }
             
             switch (choice) {
-                case 1:
+                case "1":
                 System.out.print("\033[H\033[2J");
                     showAccount(accounts,currentUser);
                     break;
-                case 2:
+                case "2":
                 System.out.print("\033[H\033[2J");
                     deposit(accounts,currentUser,scanner); //Deposit // ฝากเงิน
                     break;
-                case 3:
+                case "3":
                 System.out.print("\033[H\033[2J");
                     withdraw(accounts, currentUser, scanner); //Withdraw // ถอนเงิน
                     break;
-                case 4:
+                case "4":
                 System.out.print("\033[H\033[2J");
                     transfer(accounts, currentUser, scanner); //Transfer // โอนเงิน
                     break;
-                case 5:
+                case "5":
                 System.out.print("\033[H\033[2J");
                     deleteAcc(accounts,currentUser);
                     isLoggedIn = false;
                     runAfterLogout();
                     break;
-                case 6:
+                case "6":
                 System.out.print("\033[H\033[2J");
                     isLoggedIn = false;
                     runAfterLogout();
                     break;
                 default:
                     System.out.println("Invalid choice. Please try again.");
+                    TimeUnit.SECONDS.sleep(2);
+                    System.out.print("\033[H\033[2J");
                     break;
             }
             
@@ -412,18 +477,22 @@ public class ATM {
             System.out.println("2. Register");
             System.out.println("3. Exit");
             System.out.print("Enter your choice: ");
-            int choice = scanner.nextInt();
+            String choice = scanner.nextLine();
+                if(choice.isBlank() || choice.isEmpty()){
+                    System.out.print("\033[H\033[2J");
+                    runAfterLogout();
+                }
             
             switch (choice) {
-                case 1:
+                case "1":
                 System.out.print("\033[H\033[2J");
                     isLoggedIn = login(scanner,accounts);
                     break;
-                case 2:
+                case "2":
                 System.out.print("\033[H\033[2J");
                     register(scanner,accounts);
                     break;
-                case 3:
+                case "3":
                 System.out.print("\033[H\033[2J");
                     System.out.println("Thank you for using the application. Goodbye!");
                     TimeUnit.SECONDS.sleep(2);
@@ -471,7 +540,7 @@ public class ATM {
             System.out.println("Account details for username: ");
             System.out.println("name: " + user.get("name"));
             System.out.println("lastname: " + user.get("lastname"));
-            System.out.println("idAtm: " + user.get("idAtm"));
+            System.out.println("ID-ATM: " + user.get("idAtm"));
             System.out.println("phone: " + user.get("phone"));
             System.out.println("email: " + user.get("email"));
             System.out.println("money: " + String.format("%,.2f",user.get("money")) + " BATH.");
@@ -486,12 +555,22 @@ public class ATM {
     public static boolean login(Scanner scanner, List<HashMap<String, Object>> accounts) throws InterruptedException {
         if(accounts.size() == 0){
             System.out.println("You should register before use my program.");
+            TimeUnit.SECONDS.sleep(1);
+            System.out.print("\033[H\033[2J");
             return false;
         }
         System.out.print("Enter your username: ");
-        String username = scanner.next();
+        String username = scanner.nextLine();
+        if(username.isBlank() || username.isEmpty()){
+            System.out.print("\033[H\033[2J");
+            return false;
+        }
         System.out.print("Enter your password: ");
-        String password = scanner.next();
+        String password = scanner.nextLine();
+        if(password.isBlank() || password.isEmpty()){
+            System.out.print("\033[H\033[2J");
+            return false;
+        }
 
         for (HashMap<String, Object> user : accounts) {
             if (user.get("username").equals(username) && user.get("password").equals(password)) {
@@ -501,7 +580,7 @@ public class ATM {
         
         for (HashMap<String, Object> user : accounts) {
             if (user.get("username").equals(username) && user.get("password").equals(password)) {
-                currentUser = username;
+                currentUser = user.get("username").toString();
                 System.out.println("Logged in successfully! You can now access the ATM.");
                 TimeUnit.SECONDS.sleep(1);
                 System.out.print("\033[H\033[2J");
@@ -513,11 +592,16 @@ public class ATM {
         TimeUnit.SECONDS.sleep(1);
         System.out.print("\033[H\033[2J");
         return false;
+        //83228
     }
 
     private static void register(Scanner scanner, List<HashMap<String, Object>> accounts) throws InterruptedException {
         System.out.print("Enter a username: ");
-        String username = scanner.next();
+        String username = scanner.nextLine();
+        if(username.isBlank() || username.isEmpty()){
+            System.out.print("\033[H\033[2J");
+            runAfterLogout();
+        }
         for (HashMap<String, Object> user : accounts) {
             if (user.get("username").equals(username)) {
                 System.out.println("Username already exists. Please choose a different username.");
@@ -528,20 +612,46 @@ public class ATM {
         }
 
         System.out.print("Enter a password: ");
-        String password = scanner.next();
+        String password = scanner.nextLine();
+        if(password.isBlank() || password.isEmpty()){
+            System.out.print("\033[H\033[2J");
+            runAfterLogout();
+        }
         System.out.print("Enter a name: ");
-        String name = scanner.next();
+        String name = scanner.nextLine();
+        if(name.isBlank() || name.isEmpty()){
+            System.out.print("\033[H\033[2J");
+            runAfterLogout();
+        }
         System.out.print("Enter a lastname: ");
-        String lastname = scanner.next();
+        String lastname = scanner.nextLine();
+        if(lastname.isBlank() || lastname.isEmpty()){
+            System.out.print("\033[H\033[2J");
+            runAfterLogout();
+        }
         System.out.print("Enter a phone: ");
-        String phone = scanner.next();
-        System.out.print("Enter a email: ");
-        String email = scanner.next();
+        String phone = scanner.nextLine();
+        if(phone.isBlank() || phone.isEmpty()){
+            System.out.print("\033[H\033[2J");
+            runAfterLogout();
+        }
+        if (!p.matcher(phone).matches()) {
+            System.out.print("\033[H\033[2J");
+            runAfterLogout(); 
+        }
 
-        // if(username.trim() == "" || password.trim() == "" || name.trim() == "" || lastname.trim() == "" || phone.trim() == "" || email.trim() == ""){
-        //     System.out.println("Should enter every fields before register.");
-        //     return;
-        // }
+        System.out.print("Enter a email: ");
+        String email = scanner.nextLine();
+        if(email.isBlank() || email.isEmpty()){
+            System.out.print("\033[H\033[2J");
+            runAfterLogout();
+        }
+        if(!pattern.matcher(email).matches()){
+            System.out.print("\033[H\033[2J");
+            runAfterLogout();
+        }
+
+        
 
         HashMap<String, Object> newUser = new HashMap<>();
         newUser.put("username", username.trim());
@@ -550,7 +660,7 @@ public class ATM {
         newUser.put("lastname", lastname.trim());
         newUser.put("phone", phone.trim());
         newUser.put("email", email.trim());
-        newUser.put("idAtm", "AB-" + generateRandomNumber());
+        newUser.put("idAtm", ("AB-" + generateRandomNumber()).trim());
         newUser.put("money", Float.valueOf(1000));
 
         accounts.add(newUser);
